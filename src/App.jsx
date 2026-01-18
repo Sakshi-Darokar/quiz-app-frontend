@@ -38,28 +38,47 @@ function App() {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState(-1);
+  const [answers, setAnswers] = useState([]);   
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
 
+  
   function nextQuestion() {
+    let newAnswers = [...answers];
+    newAnswers[currentQuestion] = selectedOption;
+    setAnswers(newAnswers);
 
-    if (selectedOption === questions[currentQuestion].correctAnswer) {
-      setScore(score + 1);
-    }
-
-    setSelectedOption(-1);
-
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      setShowResult(true);
-    }
+    setSelectedOption(newAnswers[currentQuestion + 1] ?? -1);
+    setCurrentQuestion(currentQuestion + 1);
   }
 
+ 
+  function previousQuestion() {
+    let prevIndex = currentQuestion - 1;
+    setCurrentQuestion(prevIndex);
+    setSelectedOption(answers[prevIndex] ?? -1);
+  }
+
+
+  function submitQuiz() {
+    let finalScore = 0;
+
+    for (let i = 0; i < questions.length; i++) {
+      if (answers[i] === questions[i].correctAnswer) {
+        finalScore++;
+      }
+    }
+
+    setScore(finalScore);
+    setShowResult(true);
+  }
+
+  // Restart quiz
   function restartQuiz() {
     setCurrentQuestion(0);
-    setScore(0);
     setSelectedOption(-1);
+    setAnswers([]);
+    setScore(0);
     setShowResult(false);
   }
 
@@ -94,32 +113,30 @@ function App() {
             );
           })}
 
-         <div className="btn-group">
+          <div className="btn-group">
 
-              {currentQuestion > 0 && (
-                <button onClick={() => setCurrentQuestion(currentQuestion - 1)}>
-                  Previous
-                </button>
-              )}
+            {currentQuestion > 0 && (
+              <button onClick={previousQuestion}>Previous</button>
+            )}
 
-              {currentQuestion < questions.length - 1 && (
-                <button disabled={selectedOption === -1} onClick={nextQuestion}>
-                  Next
-                </button>
-              )}
+            {currentQuestion < questions.length - 1 && (
+              <button disabled={selectedOption === -1} onClick={nextQuestion}>
+                Next
+              </button>
+            )}
 
-              {currentQuestion === questions.length - 1 && (
-                <button disabled={selectedOption === -1} onClick={nextQuestion}>
-                  Submit
-                </button>
-              )}
+            {currentQuestion === questions.length - 1 && (
+              <button disabled={selectedOption === -1} onClick={submitQuiz}>
+                Submit
+              </button>
+            )}
 
-            </div>
+          </div>
 
         </div>
       )}
     </div>
   );
 }
-export default App;
 
+export default App;
